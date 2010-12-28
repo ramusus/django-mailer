@@ -47,9 +47,9 @@ def send_mail(subject, message, from_email, recipient_list, priority="medium",
     return 1
 
 
-def send_html_mail(subject, message, message_html, from_email, recipient_list,
+def send_html_mail(subject, message, message_html, from_email, recipient_list, bcc=None,
                    priority="medium", fail_silently=False, auth_user=None,
-                   auth_password=None, bcc=None):
+                   auth_password=None):
     """
     Function to queue HTML e-mails
     """
