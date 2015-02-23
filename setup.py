@@ -15,6 +15,7 @@ setup(
         "mailer.management.commands",
     ],
     package_dir={"mailer": "mailer"},
+    package_data={'mailer': ['locale/*/LC_MESSAGES/*.*']},
     classifiers=[
         "Development Status :: 4 - Beta",
         "Environment :: Web Environment",
@@ -22,6 +23,13 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
         "Programming Language :: Python",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.3",
         "Framework :: Django",
-    ]
+    ],
+    install_requires = [
+        'Django >= 1.4',
+        'six >= 1.4.1',
+        ],
+
 )
