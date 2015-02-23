@@ -1,5 +1,5 @@
-VERSION = (0, 2, 0, "a", 1) # following PEP 386
-DEV_N = 3
+VERSION = (0, 2, 0, "a", 2)  # following PEP 386
+DEV_N = None
 
 
 def get_version():
@@ -29,14 +29,14 @@ PRIORITY_MAPPING = {
 
 def send_mail(subject, message, from_email, recipient_list, priority="medium",
               fail_silently=False, auth_user=None, auth_password=None, bcc=None):
-    from django.utils.encoding import force_unicode
+    from django.utils.encoding import force_text
     from mailer.models import make_message
 
     priority = PRIORITY_MAPPING[priority]
 
     # need to do this in case subject used lazy version of ugettext
-    subject = force_unicode(subject)
-    message = force_unicode(message)
+    subject = force_text(subject)
+    message = force_text(message)
 
     make_message(subject=subject,
                  body=message,
@@ -49,19 +49,19 @@ def send_mail(subject, message, from_email, recipient_list, priority="medium",
 
 def send_html_mail(subject, message, message_html, from_email, recipient_list, bcc=None,
                    priority="medium", fail_silently=False, auth_user=None,
-                   auth_password=None):
+                   auth_password=None, headers={}):
     """
     Function to queue HTML e-mails
     """
-    from django.utils.encoding import force_unicode
+    from django.utils.encoding import force_text
     from django.core.mail import EmailMultiAlternatives
     from mailer.models import make_message
 
     priority = PRIORITY_MAPPING[priority]
 
     # need to do this in case subject used lazy version of ugettext
-    subject = force_unicode(subject)
-    message = force_unicode(message)
+    subject = force_text(subject)
+    message = force_text(message)
 
     msg = make_message(subject=subject,
                        body=message,
@@ -70,7 +70,14 @@ def send_html_mail(subject, message, message_html, from_email, recipient_list, b
                        bcc=bcc,
                        priority=priority)
     email = msg.email
-    email = EmailMultiAlternatives(email.subject, email.body, email.from_email, email.to, email.bcc)
+    email = EmailMultiAlternatives(
+        email.subject,
+        email.body,
+        email.from_email,
+        email.to,
+        email.bcc,
+        headers=headers
+    )
     email.attach_alternative(message_html, "text/html")
     msg.email = email
     msg.save()
@@ -79,7 +86,6 @@ def send_html_mail(subject, message, message_html, from_email, recipient_list, b
 
 def send_mass_mail(datatuple, fail_silently=False, auth_user=None,
                    auth_password=None, connection=None):
-    from mailer.models import make_message
     num_sent = 0
     for subject, message, sender, recipient in datatuple:
         num_sent += send_mail(subject, message, sender, recipient)
@@ -88,9 +94,9 @@ def send_mass_mail(datatuple, fail_silently=False, auth_user=None,
 
 def mail_admins(subject, message, fail_silently=False, connection=None, priority="medium"):
     from django.conf import settings
-    from django.utils.encoding import force_unicode
+    from django.utils.encoding import force_text
 
-    return send_mail(settings.EMAIL_SUBJECT_PREFIX + force_unicode(subject),
+    return send_mail(settings.EMAIL_SUBJECT_PREFIX + force_text(subject),
                      message,
                      settings.SERVER_EMAIL,
                      [a[1] for a in settings.ADMINS])
@@ -98,9 +104,9 @@ def mail_admins(subject, message, fail_silently=False, connection=None, priority
 
 def mail_managers(subject, message, fail_silently=False, connection=None, priority="medium"):
     from django.conf import settings
-    from django.utils.encoding import force_unicode
+    from django.utils.encoding import force_text
 
-    return send_mail(settings.EMAIL_SUBJECT_PREFIX + force_unicode(subject),
+    return send_mail(settings.EMAIL_SUBJECT_PREFIX + force_text(subject),
                      message,
                      settings.SERVER_EMAIL,
                      [a[1] for a in settings.MANAGERS])
